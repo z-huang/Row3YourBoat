@@ -1,0 +1,93 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+from urllib.parse import urlparse
+
+from models import *
+from database import get_db
+from schemas import *
+
+router = APIRouter()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+@router.post("/api/auth", response_model=AuthResponse)
+def auth(auth_data: AuthRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.name == auth_data.username).first()
+    success = user is not None and pwd_context.verify(
+        auth_data.password, user.password)
+    return {"is_authenticated": success}
+
+
+@router.get("/api/users", response_model=list[dict])
+def get_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    return [{"id": u.id, "username": u.name, "mode": u.mode} for u in users]
+
+
+@router.post("/api/users/create", response_model=dict)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.name == user.username).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Username already taken")
+    hashed = pwd_context.hash(user.password)
+    db_user = User(name=user.username, password=hashed, mode="normal")
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return {"id": db_user.id, "username": db_user.name, "mode": db_user.mode}
+
+
+@router.put("/api/users", response_model=dict)
+def update_user(update: UserUpdate, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(id=update.id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if update.username is not None:
+        user.name = update.username
+    if update.password is not None:
+        user.password = pwd_context.hash(update.password)
+    if update.mode is not None:
+        user.mode = update.mode
+
+    db.commit()
+    return {"id": user.id, "username": user.name, "mode": user.mode}
+
+
+@router.delete("/api/users/{user_id}", response_model=dict)
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter_by(id=user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+    return {"detail": "Deleted"}
+
+
+@router.post("/api/get_policy", response_model=PolicyResponse)
+def get_policy(req: PolicyRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.name == req.username).first()
+    if not user:
+        return {"can_pass": True, "token": ""}
+
+    try:
+        hostname = urlparse(req.url).hostname
+        if hostname is None:
+            raise ValueError(f'Host name not found: {req.url}')
+        blocked = db.query(BlockedSites).filter(
+            BlockedSites.host == hostname).first()
+        if blocked:
+            event = SlackEvent(
+                user_id=user.id,
+                url=req.url,
+                timestamp=datetime.now()
+            )
+            db.add(event)
+            db.commit()
+            db.refresh(event)
+            return {"can_pass": False, "token": str(event.id)}
+        else:
+            return {"can_pass": True, "token": ""}
+    except Exception as e:
+        return {"can_pass": True, "token": ""}
