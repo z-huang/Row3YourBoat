@@ -5,7 +5,7 @@ import requests
 import os
 
 FRONTEND_URL = os.getenv('FRONTEND_URL')
-REALM = os.getenv('REALM')
+REALM = os.getenv('PROXY_REALM')
 
 
 class SlackingDetector:
