@@ -1,8 +1,17 @@
+import asyncio
 import base64
-from typing import Optional, Tuple
+from datetime import datetime
+from typing import Optional
 from mitmproxy import http, ctx, connection
 import requests
 import os
+from urllib.parse import urlparse
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+
+INFLUX_TOKEN = os.getenv("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
+INFLUX_ORG = os.getenv("DOCKER_INFLUXDB_INIT_ORG")
+INFLUX_BUCKET = os.getenv("DOCKER_INFLUXDB_INIT_BUCKET")
 
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 REALM = os.getenv('PROXY_REALM')
@@ -10,9 +19,19 @@ REALM = os.getenv('PROXY_REALM')
 
 class SlackingDetector:
     def __init__(self):
-        self.conn_to_user = {}
+        self.connection_to_user = {}
+        self.request_to_user = {}
+        self.queue = asyncio.Queue()
 
-    def _authenticate(self, flow: http.HTTPFlow) -> Optional[str]:
+        self.influx_client = InfluxDBClient(
+            url='http://influxdb:8086',
+            token=INFLUX_TOKEN,
+            org=INFLUX_ORG,
+        )
+        self.write_api = self.influx_client.write_api(
+            write_options=SYNCHRONOUS)
+
+    def authenticate(self, flow: http.HTTPFlow) -> Optional[str]:
         auth_header = flow.request.headers.get("Proxy-Authorization")
         if not auth_header:
             ctx.log.warn(f"Missing Proxy-Authorization header")
@@ -45,22 +64,23 @@ class SlackingDetector:
             return None
 
     def request(self, flow: http.HTTPFlow):
-        ctx.log.info(
-            f'[REQUEST] {flow.request.headers.get('Proxy-Authorization')}')
-        username = (self.conn_to_user.get(flow.client_conn.id) or
-                    self._authenticate(flow))
-        if username is None:
-            flow.response = http.Response.make(
-                407,
-                b"Proxy Authentication Required",
-                {
-                    "Proxy-Authenticate": f'Basic realm="{REALM}"',
-                    "Content-Length": "0"
-                }
-            )
-            return
+        ctx.log.info(f'[Request] {flow.client_conn.id}')
 
-        ctx.log.info(f'User {username} sent a request')
+        if flow.client_conn.id in self.connection_to_user:
+            username = self.connection_to_user[flow.client_conn.id]
+        else:
+            username = self.authenticate(flow)
+            if username is None:
+                flow.response = http.Response.make(
+                    407,
+                    b"Proxy Authentication Required",
+                    {
+                        "Proxy-Authenticate": f'Basic realm="{REALM}"',
+                        "Content-Length": "0"
+                    }
+                )
+                return
+            self.request_to_user[flow.client_conn.id] = username
 
         try:
             response = requests.post(
@@ -73,6 +93,17 @@ class SlackingDetector:
             response.raise_for_status()
             policy = response.json()
             if not policy['can_pass']:
+                try:
+                    hostname = urlparse(flow.request.url).hostname
+                    self.write_api.write(
+                        bucket=INFLUX_BUCKET,
+                        record=Point("slack")
+                        .tag("username", username)
+                        .field("hostname", hostname)
+                        .time(datetime.now())
+                    )
+                except:
+                    pass
                 flow.response = http.Response.make(
                     302, b"", {
                         'Location': f'{FRONTEND_URL}/slacking?token={policy["token"]}'
@@ -81,10 +112,48 @@ class SlackingDetector:
         except requests.exceptions.RequestException as e:
             ctx.log.error(f"Error sending event to backend: {e}")
 
+        upload_size = len(flow.request.content or b'')
+        if upload_size > 0:
+            self.write_api.write(
+                bucket=INFLUX_BUCKET,
+                record=Point("user_traffic")
+                .tag("username", username)
+                .field("upload_bytes", upload_size)
+                .time(datetime.now())
+            )
+
+    def responseheaders(self, flow: http.HTTPFlow):
+        if flow.client_conn.id in self.connection_to_user:
+            username = self.connection_to_user[flow.client_conn.id]
+        elif flow.client_conn.id in self.request_to_user:
+            username = self.request_to_user[flow.client_conn.id]
+        else:
+            ctx.log.error(
+                f'[Response] {flow.client_conn.id} user not found!!!')
+
+        def callback(data: bytes):
+            download_size = len(data)
+            self.write_api.write(
+                bucket=INFLUX_BUCKET,
+                record=Point("user_traffic")
+                .tag("username", username)
+                .field("download_bytes", int(download_size))
+                .time(datetime.now())
+            )
+            return data
+
+        # Enables streaming for all responses.
+        flow.response.stream = callback
+
+    def response(self, flow: http.HTTPFlow):
+        ctx.log.info(f'[Response] {flow.client_conn.id}')
+
+        if flow.client_conn.id in self.request_to_user:
+            del self.request_to_user[flow.client_conn.id]
+
     def http_connect(self, flow: http.HTTPFlow):
-        ctx.log.info(
-            f'[CONNECT] {flow.request.headers.get('Proxy-Authorization')}')
-        username = self._authenticate(flow)
+        ctx.log.info(f'[CONNECT] {flow.client_conn.id}')
+        username = self.authenticate(flow)
         if username is None:
             ctx.log.info(f'Ask for authentication')
             flow.response = http.Response.make(
@@ -97,12 +166,14 @@ class SlackingDetector:
             )
         else:
             ctx.log.info(f'User {username} connected.')
-            self.conn_to_user[flow.client_conn.id] = username
+            self.connection_to_user[flow.client_conn.id] = username
 
     def client_disconnected(self, client: connection.Client):
-        if client.id in self.conn_to_user:
-            ctx.log.info(f'User {self.conn_to_user[client.id]} disconnected.')
-            del self.conn_to_user[client.id]
+        ctx.log.info(f'[DISCONNECT] {client.id}')
+        if client.id in self.connection_to_user:
+            ctx.log.info(
+                f'User {self.connection_to_user[client.id]} disconnected.')
+            del self.connection_to_user[client.id]
 
 
 addons = [
