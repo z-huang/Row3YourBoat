@@ -6,9 +6,7 @@ from urllib.parse import urlparse
 from .auth import AuthManager
 from .influxdb import InfluxDBManager
 
-FRONTEND_HOST_ALIAS = os.getenv('FRONTEND_HOST_ALIAS')
-FRONTEND_HOST = os.getenv('FRONTEND_HOST')
-FRONTEND_PORT = int(os.getenv('FRONTEND_PORT'))
+DOMAIN = os.getenv('DOMAIN')
 
 
 class SlackingPolicyEnforcer:
@@ -20,10 +18,6 @@ class SlackingPolicyEnforcer:
         username = self.auth_manager.get_username(flow)
         if not username:
             return
-
-        if flow.request.pretty_host == FRONTEND_HOST_ALIAS:
-            flow.request.host = FRONTEND_HOST
-            flow.request.port = FRONTEND_PORT
 
         try:
             response = requests.post(
@@ -44,7 +38,7 @@ class SlackingPolicyEnforcer:
                     302,
                     b"",
                     {
-                        "Location": f"http://{FRONTEND_HOST_ALIAS}/slacking?token={policy['token']}"
+                        "Location": f"http://{DOMAIN}/slacking?token={policy['token']}"
                     }
                 )
         except Exception as e:
