@@ -6,8 +6,8 @@ from mitmproxy import http, ctx, connection
 import requests
 import os
 from urllib.parse import urlparse
-from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client import Point
+from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 
 INFLUX_TOKEN = os.getenv("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
 INFLUX_ORG = os.getenv("DOCKER_INFLUXDB_INIT_ORG")
@@ -22,14 +22,17 @@ class SlackingDetector:
         self.connection_to_user = {}
         self.request_to_user = {}
         self.queue = asyncio.Queue()
+        self.influx_client = None
+        self.write_api = None
+        asyncio.create_task(self.init_influxdb())
 
-        self.influx_client = InfluxDBClient(
+    async def init_influxdb(self):
+        self.influx_client = InfluxDBClientAsync(
             url='http://influxdb:8086',
             token=INFLUX_TOKEN,
             org=INFLUX_ORG,
         )
-        self.write_api = self.influx_client.write_api(
-            write_options=SYNCHRONOUS)
+        self.write_api = self.influx_client.write_api()
 
     def authenticate(self, flow: http.HTTPFlow) -> Optional[str]:
         auth_header = flow.request.headers.get("Proxy-Authorization")
@@ -95,15 +98,15 @@ class SlackingDetector:
             if not policy['can_pass']:
                 try:
                     hostname = urlparse(flow.request.url).hostname
-                    self.write_api.write(
+                    asyncio.create_task(self.write_api.write(
                         bucket=INFLUX_BUCKET,
                         record=Point("slack")
                         .tag("username", username)
                         .field("hostname", hostname)
                         .time(datetime.now())
-                    )
-                except:
-                    pass
+                    ))
+                except Exception as e:
+                    ctx.log.warn(f"Influx write error: {e}")
                 flow.response = http.Response.make(
                     302, b"", {
                         'Location': f'{FRONTEND_URL}/slacking?token={policy["token"]}'
@@ -114,13 +117,13 @@ class SlackingDetector:
 
         upload_size = len(flow.request.content or b'')
         if upload_size > 0:
-            self.write_api.write(
+            asyncio.create_task(self.write_api.write(
                 bucket=INFLUX_BUCKET,
                 record=Point("user_traffic")
                 .tag("username", username)
                 .field("upload_bytes", upload_size)
                 .time(datetime.now())
-            )
+            ))
 
     def responseheaders(self, flow: http.HTTPFlow):
         if flow.client_conn.id in self.connection_to_user:
@@ -130,19 +133,19 @@ class SlackingDetector:
         else:
             ctx.log.error(
                 f'[Response] {flow.client_conn.id} user not found!!!')
+            return
 
         def callback(data: bytes):
             download_size = len(data)
-            self.write_api.write(
+            asyncio.create_task(self.write_api.write(
                 bucket=INFLUX_BUCKET,
                 record=Point("user_traffic")
                 .tag("username", username)
-                .field("download_bytes", int(download_size))
+                .field("download_bytes", download_size)
                 .time(datetime.now())
-            )
+            ))
             return data
 
-        # Enables streaming for all responses.
         flow.response.stream = callback
 
     def response(self, flow: http.HTTPFlow):
