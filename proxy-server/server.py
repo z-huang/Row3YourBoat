@@ -13,7 +13,10 @@ INFLUX_TOKEN = os.getenv("DOCKER_INFLUXDB_INIT_ADMIN_TOKEN")
 INFLUX_ORG = os.getenv("DOCKER_INFLUXDB_INIT_ORG")
 INFLUX_BUCKET = os.getenv("DOCKER_INFLUXDB_INIT_BUCKET")
 
-FRONTEND_URL = os.getenv('FRONTEND_URL')
+FRONTEND_HOST_ALIAS = os.getenv('FRONTEND_HOST_ALIAS')
+FRONTEND_HOST = os.getenv('FRONTEND_HOST')
+FRONTEND_PORT = os.getenv('FRONTEND_PORT')
+
 REALM = os.getenv('PROXY_REALM')
 
 
@@ -69,6 +72,11 @@ class SlackingDetector:
     def request(self, flow: http.HTTPFlow):
         ctx.log.info(f'[Request] {flow.client_conn.id}')
 
+        # Frontend alias
+        if flow.request.pretty_host == FRONTEND_HOST_ALIAS:
+            flow.request.host = FRONTEND_HOST
+            flow.request.port = FRONTEND_PORT
+
         if flow.client_conn.id in self.connection_to_user:
             username = self.connection_to_user[flow.client_conn.id]
         else:
@@ -109,7 +117,7 @@ class SlackingDetector:
                     ctx.log.warn(f"Influx write error: {e}")
                 flow.response = http.Response.make(
                     302, b"", {
-                        'Location': f'{FRONTEND_URL}/slacking?token={policy["token"]}'
+                        'Location': f'http://{FRONTEND_HOST_ALIAS}/slacking?token={policy["token"]}'
                     }
                 )
         except requests.exceptions.RequestException as e:
