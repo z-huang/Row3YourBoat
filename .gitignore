@@ -1,0 +1,28 @@
+# macOS 系統產生的垃圾檔案
+.DS_Store
+
+# Node modules
+node_modules/
+
+# build 輸出資料夾（React 打包後的內容）
+build/
+
+# 環境變數
+.env
+.env.local
+.env.*.local
+
+# 日誌檔案
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode 設定（如使用 VSCode）
+.vscode/
+
+# 系統垃圾檔案
+Thumbs.db
+Desktop.ini
+
+# React 快取
+.cache/

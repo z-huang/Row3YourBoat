@@ -1,0 +1,51 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  height: 100vh; /* 撐滿整個視窗 */
+  display: flex;
+  justify-content: center; /* 水平置中 */
+  align-items: center;     /* 垂直置中 */
+  flex-direction: column;  /* 子元素上下排列 */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transform: translateY(-10%);
+}
+
+.login-container {
+  width: 350px;
+  margin: 5px auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+input {
+  box-sizing: border-box;
+  display: block;
+  width: 80%;
+  padding: 0.5rem;
+  margin: 1rem auto;
+}
+
+button {
+  width: 80%;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #A9B7AA; /* 莫蘭迪綠 */
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+  margin-top: 1rem;
+}
