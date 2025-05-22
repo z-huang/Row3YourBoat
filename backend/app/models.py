@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 
 from database import Base
 
@@ -27,7 +27,7 @@ class BlockedSites(Base):
 class SlackEvent(Base):
     __tablename__ = "slack_event"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    timestamp = Column(DateTime, default=datetime.now())
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     user_id = Column(Integer, ForeignKey("users.id"))
     url = Column(Text)
 

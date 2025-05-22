@@ -9,7 +9,7 @@ db_url = URL.create(
     drivername="postgresql+psycopg2",
     username=os.getenv('POSTGRES_USER'),
     password=os.getenv('POSTGRES_PASSWORD'),
-    host='db',
+    host=os.getenv("POSTGRES_HOST", "db"),
     port=5432,
     database=os.getenv('POSTGRES_DB')
 )

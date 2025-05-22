@@ -7,3 +7,4 @@ passlib[bcrypt]
 starlette
 itsdangerous
 python-dotenv>=1.0
+PyJWT
