@@ -24,6 +24,7 @@ class PolicyResponse(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
+    email: str
 
 
 class UserUpdate(BaseModel):

@@ -6,3 +6,4 @@ pydantic
 passlib[bcrypt]
 starlette
 itsdangerous
+python-dotenv>=1.0

@@ -38,7 +38,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Username already taken")
     hashed = pwd_context.hash(user.password)
-    db_user = User(name=user.username, password=hashed, mode="normal")
+    db_user = User(name=user.username, password=hashed, email=user.email, mode="normal")
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
