@@ -2,14 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from urllib.parse import urlparse
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+from urllib.parse import urlparse
 
 from models import *
 from database import get_db
 from schemas import *
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 @router.post("/api/login", response_model=AuthResponse)
 def login(auth_data: AuthRequest, request: Request, db: Session = Depends(get_db)):
@@ -34,6 +38,7 @@ def get_users(db: Session = Depends(get_db)):
 
 @router.post("/api/users/create", response_model=dict)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    print(f"[CREATE] username={user.username} password={user.password}")
     existing = db.query(User).filter(User.name == user.username).first()
     if existing:
         raise HTTPException(status_code=400, detail="Username already taken")
@@ -43,7 +48,6 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     return {"id": db_user.id, "username": db_user.name, "mode": db_user.mode}
-
 
 @router.put("/api/users", response_model=dict)
 def update_user(update: UserUpdate, db: Session = Depends(get_db)):

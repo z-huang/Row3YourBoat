@@ -1,6 +1,36 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl, field_serializer
+from datetime import datetime
 
+class SlackEventBase(BaseModel):
+    url: str
+    timestamp: datetime
+
+class SlackEventCreate(SlackEventBase):
+    user_id: int
+
+from uuid import UUID
+
+class SlackEventRead(SlackEventBase):
+    id: UUID
+    user_id: int
+
+    @field_serializer("id")
+    def serialize_id(self, id: UUID, _info):
+        return str(id)
+
+    class Config:
+        from_attributes = True
+
+# --- 統計回傳 Schemas ---
+class SlackCount(BaseModel):
+    date: datetime
+    count: int
+
+class SlackUserStat(BaseModel):
+    user_id: int
+    count: int
+    total_minutes: int
 
 class AuthRequest(BaseModel):
     username: str

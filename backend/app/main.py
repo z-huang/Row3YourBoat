@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from models import *
 import database
 from schemas import *
-from routes import users, blocked_sites
+from routes import users, blocked_sites, slack_events, stats
 
 Base.metadata.create_all(bind=database.engine)
 
@@ -27,3 +27,5 @@ app.add_middleware(
 
 app.include_router(users.router)
 app.include_router(blocked_sites.router)
+app.include_router(slack_events.router)
+app.include_router(stats.router) 
