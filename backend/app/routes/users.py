@@ -74,31 +74,3 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(user)
     db.commit()
     return {"detail": "Deleted"}
-
-
-@router.post("/api/get_policy", response_model=PolicyResponse)
-def get_policy(req: PolicyRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.name == req.username).first()
-    if not user:
-        return {"can_pass": True, "token": ""}
-
-    try:
-        hostname = urlparse(req.url).hostname
-        if hostname is None:
-            raise ValueError(f'Host name not found: {req.url}')
-        blocked = db.query(BlockedSites).filter(
-            BlockedSites.host == hostname).first()
-        if blocked:
-            event = SlackEvent(
-                user_id=user.id,
-                url=req.url,
-                timestamp=datetime.now()
-            )
-            db.add(event)
-            db.commit()
-            db.refresh(event)
-            return {"can_pass": False, "token": str(event.id)}
-        else:
-            return {"can_pass": True, "token": ""}
-    except Exception as e:
-        return {"can_pass": True, "token": ""}
