@@ -3,7 +3,7 @@ from influxdb_client import Point
 import os
 from datetime import datetime
 
-class InfluxDBManager:
+class InfluxDB:
     def __init__(self):
         self.client = None
         self.write_api = None

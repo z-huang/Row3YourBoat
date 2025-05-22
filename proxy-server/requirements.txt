@@ -1,3 +1,4 @@
 mitmproxy
 requests
 influxdb_client[async]
+asyncpg

@@ -1,45 +1,38 @@
-from mitmproxy import http, ctx
+from mitmproxy import http
 import asyncio
-import requests
 import os
-from urllib.parse import urlparse
 from .auth import AuthManager
-from .influxdb import InfluxDBManager
+from influxdb import InfluxDB
+from db import Database
 
 DOMAIN = os.getenv('DOMAIN')
 
 
 class SlackingPolicyEnforcer:
-    def __init__(self, auth_manager: AuthManager, influx_manager: InfluxDBManager):
+    def __init__(
+        self,
+        auth_manager: AuthManager,
+        db: Database,
+        influxdb: InfluxDB
+    ):
         self.auth_manager = auth_manager
-        self.influx_manager = influx_manager
+        self.db = db
+        self.influxdb = influxdb
 
-    def request(self, flow: http.HTTPFlow):
+    async def request(self, flow: http.HTTPFlow):
         username = self.auth_manager.get_username(flow)
         if not username:
             return
 
-        try:
-            response = requests.post(
-                "http://backend:8000/api/get_policy",
-                json={
-                    "username": username,
-                    "url": flow.request.url
+        hostname = flow.request.pretty_host
+        can_pass = self.db.check_host(hostname)
+        if not can_pass:
+            asyncio.create_task(self.influxdb.log_slack(username, hostname))
+            token = self.db.record_slack(username, flow.request.url)
+            flow.response = http.Response.make(
+                302,
+                b"",
+                {
+                    "Location": f"http://{DOMAIN}/slacking?token={token}"
                 }
             )
-            response.raise_for_status()
-
-            policy = response.json()
-            if not policy['can_pass']:
-                hostname = urlparse(flow.request.url).hostname
-                asyncio.create_task(
-                    self.influx_manager.log_slack(username, hostname))
-                flow.response = http.Response.make(
-                    302,
-                    b"",
-                    {
-                        "Location": f"http://{DOMAIN}/slacking?token={policy['token']}"
-                    }
-                )
-        except Exception as e:
-            ctx.log.error(f"Error sending event to backend: {e}")

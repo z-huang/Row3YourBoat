@@ -23,8 +23,8 @@ class RedirectManager:
             flow.request.port = 8086
             flow.request.scheme = "http"
 
-    def request(self, flow: http.HTTPFlow):
+    async def request(self, flow: http.HTTPFlow):
         self.redirect(flow)
 
-    def http_connect(self, flow: http.HTTPFlow):
+    async def http_connect(self, flow: http.HTTPFlow):
         self.redirect(flow)

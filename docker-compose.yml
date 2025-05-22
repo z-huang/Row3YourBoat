@@ -11,6 +11,16 @@ services:
       - mitmproxy_cert:/root/.mitmproxy
     depends_on:
       - backend
+  
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      # - frontend
+      - backend
 
   backend:
     build: ./backend
@@ -41,7 +51,6 @@ services:
 
   influxdb:
     image: influxdb:latest
-    container_name: influxdb
     ports:
       - "8086:8086"
     env_file:
@@ -51,7 +60,6 @@ services:
 
   grafana:
     build: ./grafana
-    container_name: grafana
     ports:
       - "3000:3000"
     env_file:
@@ -60,16 +68,6 @@ services:
       - influxdb
     volumes:
       - grafana_data:/var/lib/grafana
-  
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      # - frontend
-      - backend
 
 volumes:
   db_data:

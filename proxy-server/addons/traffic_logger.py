@@ -1,13 +1,13 @@
 from mitmproxy import http
 import asyncio
 from .auth import AuthManager
-from .influxdb import InfluxDBManager
+from influxdb import InfluxDB
 
 
 class TrafficLogger:
-    def __init__(self, auth_manager: AuthManager, influx_manager: InfluxDBManager):
+    def __init__(self, auth_manager: AuthManager, influxdb: InfluxDB):
         self.auth_manager = auth_manager
-        self.influx_manager = influx_manager
+        self.influxdb = influxdb
 
     def request(self, flow: http.HTTPFlow):
         username = self.auth_manager.get_username(flow)
@@ -16,7 +16,7 @@ class TrafficLogger:
 
         upload_size = len(flow.request.content or b'')
         if upload_size > 0:
-            asyncio.create_task(self.influx_manager.log_traffic(
+            asyncio.create_task(self.influxdb.log_traffic(
                 username,
                 upload=upload_size
             ))
@@ -28,7 +28,7 @@ class TrafficLogger:
 
         def callback(data: bytes):
             download_size = len(data)
-            asyncio.create_task(self.influx_manager.log_traffic(
+            asyncio.create_task(self.influxdb.log_traffic(
                 username,
                 download=download_size
             ))
