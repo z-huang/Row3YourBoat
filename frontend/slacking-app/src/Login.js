@@ -12,7 +12,7 @@ const Login = () => {
 
     // 假設呼叫後端 API
     try {
-      const res = await fetch('https://your-backend-api.com/login', {
+      const res = await fetch('https://backend.rrryb.orb.local/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
