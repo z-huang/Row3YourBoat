@@ -1,36 +1,51 @@
-// src/Login.jsx
+// Login.js
 import React, { useState } from 'react';
-import './Login.css'; // 可以自己設計樣式
+import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
+    //console.log('登入觸發');
     e.preventDefault();
 
-    // 呼叫後端 API
-    try {
-      const res = await fetch('https://backend.rrryb.orb.local/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+    // 👇 模擬用的假帳密
+    const FAKE_USERNAME = 'admin';
+    const FAKE_PASSWORD = '123456';
 
-      const data = await res.json();
-
-      if (res.ok) {
-        alert('登入成功！');
-        // 做轉跳或存 token
-      } else {
-        setError(data.message || '登入失敗');
-      }
-    } catch (err) {
-      setError('無法連接伺服器');
+    if(username === FAKE_USERNAME && password === FAKE_PASSWORD){
+      //console.log('登入成功！');
+      onLoginSuccess(); // 成功登入
+      navigate('/');
+    }else{
+      setError('帳號或密碼錯誤');
     }
+
+    // 後端架起來的時候跑
+    // try {
+    //   const res = await fetch('https://backend.rrryb.orb.local/api/login', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ username, password }),
+    //   });
+
+    //   const data = await res.json();
+
+    //   if (res.ok) {
+    //     onLoginSuccess(); // 通知 App.js 切換畫面
+    //     navigate('/');
+    //   } else {
+    //     setError(data.message || '登入失敗');
+    //   }
+    // } catch (err) {
+    //   setError('無法連接伺服器');
+    // }
   };
 
   return (

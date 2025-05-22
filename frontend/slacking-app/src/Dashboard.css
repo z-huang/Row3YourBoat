@@ -1,0 +1,257 @@
+/* Dashboard.css */
+
+/* 容器本體 */
+.dashboard-container {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 上方兩顆按鈕的區塊（置中 & 並排） */
+.dashboard-container .top-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* 上方按鈕樣式 */
+.mode-setting-button,
+.blockUrl-setting-button {
+  font-size: 0.85rem;
+  width: 120px;
+  padding: 0.4rem 0.6rem;
+  background-color: #A9B7AA;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mode-setting-button:hover,
+.blockUrl-setting-button:hover {
+  background-color: #8f9a8f;
+}
+
+.dashboard-container .top-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* 每顆 Tab 按鈕 - 預設狀態 */
+.tabs button {
+  font-size: 0.85rem;
+  width: 250px;
+  padding: 0.5rem 1rem;
+  /* 邊框 */
+  border: none;
+  border-bottom: 1px solid #888888;
+  background-color: white;         /* 白底 */
+  color: black;                    /* 黑字 */
+  border-radius: 5px 5px 0 0;      /* 圓角 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+/* 點選中的 Tab（與 hover 同樣風格） */
+.tabs button.active {
+  background-color: #434343;          /* 深灰底 */
+  border-bottom: 1px solid #434343;
+  color: white;                    /* 白字 */
+  /*border: none;                     無邊框 */
+}
+
+/* 滑鼠 hover */
+.tabs button:hover {
+  background-color: #434343;          /* 深灰底 */
+  color: white;                    /* 白字 */
+  /*border: none;                     無邊框 */
+}
+
+.ranking-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.ranking-table {
+  border-collapse: collapse;
+  text-align: center;
+  width: 80%;
+  max-width: 600px;
+}
+
+.ranking-table th,
+.ranking-table td {
+  /*border: 1px solid #ccc;*/
+  padding: 0.75rem;
+}
+
+.ranking-table thead {
+  background-color: #f3f3f3;
+  font-weight: bold;
+}
+
+.mode-setting-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.mode-select-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.mode-select-row label {
+  font-size: 1rem;
+}
+
+.mode-select-row select {
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
+}
+
+.button-group {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.button-group button,
+.comfirm-button,
+.back-button {
+  width: 250px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #A9B7AA;
+  color: white;
+  cursor: pointer;
+}
+
+.button-group button:hover,
+.comfirm-button:hover,
+.back-button:hover {
+  background-color: #8f9a8f;
+}
+
+.block-setting-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+}
+
+.no-blocked-url {
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 1rem;
+  color: #444;
+}
+
+/* 刪除按鈕樣式 */
+.delete-button {
+  margin-left: 10px;
+  padding: 0.4rem 0.8rem;
+  background-color: #d36565;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #b94e4e;
+}
+
+/* 新增網址區塊：左對齊 */
+.block-add-url {
+  margin-top: 2rem;
+  text-align: left;
+  padding-left: 1.5rem;
+}
+
+/* 標題左對齊 */
+.add-url-title {
+  margin-bottom: 0.5rem;
+}
+
+.input-button-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center; /* ✅ 確保 baseline 對齊 */
+}
+
+.input-button-row input {
+  flex: 1;
+  height: 42px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.input-button-row button {
+  width: 100px;
+  height: 42px;
+  background-color: #A9B7AA;
+  color: white;
+  font-size: 1rem;
+  line-height: 1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 0;
+
+  /* ✅ 垂直置中內容 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ✅ 關鍵：讓 button 不以文字 baseline 對齊 */
+  vertical-align: middle;
+
+  /* ✅ 強制壓縮所有 padding 不讓撐高 */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+.input-button-row button:hover {
+  background-color: #8f9a8f;
+}
+
+/* 回前頁按鈕置中 */
+.back-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.back-button {
+  padding: 0.5rem 2rem;
+  width: 250px;
+  background-color: #A9B7AA;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #8f9a8f;
+}
