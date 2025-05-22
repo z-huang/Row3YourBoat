@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from urllib.parse import urlparse
@@ -11,12 +11,19 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@router.post("/api/auth", response_model=AuthResponse)
-def auth(auth_data: AuthRequest, db: Session = Depends(get_db)):
+@router.post("/api/login", response_model=AuthResponse)
+def login(auth_data: AuthRequest, request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.name == auth_data.username).first()
-    success = user is not None and pwd_context.verify(
-        auth_data.password, user.password)
-    return {"is_authenticated": success}
+    if user and pwd_context.verify(auth_data.password, user.password):
+        request.session["user_id"] = user.id
+        return {"is_authenticated": True}
+    return {"is_authenticated": False}
+
+
+@router.post("/api/logout")
+def logout(request: Request):
+    request.session.clear()
+    return {"detail": "Logged out"}
 
 
 @router.get("/api/users", response_model=list[dict])
