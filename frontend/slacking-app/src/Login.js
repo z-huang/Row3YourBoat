@@ -10,7 +10,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // 假設呼叫後端 API
+    // 呼叫後端 API
     try {
       const res = await fetch('https://backend.rrryb.orb.local/api/login', {
         method: 'POST',
@@ -36,7 +36,7 @@ const Login = () => {
   return (
     <div className="app-container">
       <div className="login-container">
-        <h2>划水伺服器</h2>
+        <h2>🏖 Slacking 划水Server</h2>
         <form onSubmit={handleLogin}>
           <input
             type="text"
