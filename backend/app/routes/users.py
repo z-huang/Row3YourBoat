@@ -12,6 +12,7 @@ from schemas import *
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 
+
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

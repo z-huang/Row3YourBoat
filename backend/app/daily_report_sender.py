@@ -91,12 +91,14 @@ def generate_and_send_report():
             email = user.email
             urls = user_events.get(email, [])
             count = len(urls)
-
-            if count == 0:
-                body = f"你今天划水了 0 次。\n今天表現不錯，沒有紀錄到划水行為！"
+            if count <= 5:
+                intro = "挺好的，請繼續內卷你的朋友😀\n"
+            elif 6 <= count <= 25:
+                intro = "你的 GPA 要被你划掉了😡\n"
             else:
-                body = f"你今天划水了 {count} 次。\n你划水了這些網站：\n" + "\n".join(urls)
+                intro = "啊啊啊啊錒，別再混了！！！🤬"
 
+            body = intro + f"你今天划水了 {count} 次。\n你划水了這些網站：\n" + "\n".join(urls)
             send_email(
                 subject=f"[每日划水報告] {today}",
                 body_text=body,

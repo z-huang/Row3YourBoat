@@ -51,3 +51,16 @@ class Database:
             """, (str(event_id), timestamp, user_id, url))
 
             return event_id
+    def get_user_email(self, username: str) -> str:
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT email FROM users WHERE name = %s", (username,))
+            row = cur.fetchone()
+            if not row or not row["email"]:
+                raise ValueError(f"找不到 {username} 的 email")
+            return row["email"]
+    def get_all_user_emails(self) -> list[str]:
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT email FROM users WHERE email IS NOT NULL")
+            rows = cur.fetchall()
+            return [row["email"] for row in rows]
+

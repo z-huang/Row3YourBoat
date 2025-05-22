@@ -3,6 +3,7 @@ import os
 from .auth import AuthManager
 from influxdb import InfluxDB
 from db import Database
+from alert import notify_all_users_of_slack
 
 DOMAIN = os.getenv('DOMAIN')
 
@@ -29,6 +30,8 @@ class SlackingPolicyEnforcer:
             ctx.log.info(f'Not pass: {hostname}')
             self.influxdb.log_slack(username, hostname)
             token = self.db.record_slack(username, flow.request.url)
+            url = flow.request.url
+            notify_all_users_of_slack(username, url, self.db)
             flow.response = http.Response.make(
                 302,
                 b"",
