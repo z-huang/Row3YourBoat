@@ -10,7 +10,7 @@ services:
     volumes:
       - mitmproxy_cert:/root/.mitmproxy
     depends_on:
-      - backend
+      - frontend
 
   frontend:
     build: ./frontend

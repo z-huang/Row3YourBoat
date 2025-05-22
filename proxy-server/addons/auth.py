@@ -52,20 +52,20 @@ class AuthManager:
             flow.response = self.make_407_response()
             return None
 
-    async def http_connect(self, flow: http.HTTPFlow):
+    def http_connect(self, flow: http.HTTPFlow):
         ctx.log.info(f'[CONNECT] {flow.client_conn.id}')
 
         username = self.authenticate(flow)
         if username is not None:
             self.connection_to_user[flow.client_conn.id] = username
 
-    async def client_disconnected(self, client: connection.Client):
+    def client_disconnected(self, client: connection.Client):
         ctx.log.info(f'[DISCONNECT] {client.id}')
 
         if client.id in self.connection_to_user:
             del self.connection_to_user[client.id]
 
-    async def request(self, flow: http.HTTPFlow):
+    def request(self, flow: http.HTTPFlow):
         ctx.log.info(f'[Request] {flow.client_conn.id}')
 
         if flow.client_conn.id not in self.connection_to_user:
@@ -73,7 +73,7 @@ class AuthManager:
             if username is not None:
                 self.request_to_user[flow.client_conn.id] = username
 
-    async def response(self, flow: http.HTTPFlow):
+    def response(self, flow: http.HTTPFlow):
         ctx.log.info(f'[Response] {flow.client_conn.id}')
 
         if flow.client_conn.id in self.request_to_user:

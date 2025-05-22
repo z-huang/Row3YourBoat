@@ -1,5 +1,4 @@
-from mitmproxy import http
-import asyncio
+from mitmproxy import http, ctx
 import os
 from .auth import AuthManager
 from influxdb import InfluxDB
@@ -19,7 +18,7 @@ class SlackingPolicyEnforcer:
         self.db = db
         self.influxdb = influxdb
 
-    async def request(self, flow: http.HTTPFlow):
+    def request(self, flow: http.HTTPFlow):
         username = self.auth_manager.get_username(flow)
         if not username:
             return
@@ -27,7 +26,8 @@ class SlackingPolicyEnforcer:
         hostname = flow.request.pretty_host
         can_pass = self.db.check_host(hostname)
         if not can_pass:
-            asyncio.create_task(self.influxdb.log_slack(username, hostname))
+            ctx.log.info(f'Not pass: {hostname}')
+            self.influxdb.log_slack(username, hostname)
             token = self.db.record_slack(username, flow.request.url)
             flow.response = http.Response.make(
                 302,
@@ -36,3 +36,5 @@ class SlackingPolicyEnforcer:
                     "Location": f"http://{DOMAIN}/slacking?token={token}"
                 }
             )
+        else:
+            ctx.log.info(f'Pass: {hostname}')
