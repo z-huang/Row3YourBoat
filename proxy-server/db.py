@@ -5,6 +5,12 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from passlib.context import CryptContext
 
+from enum import Enum
+
+class AccessMode(str, Enum):
+    A = "A"
+    B = "B"
+    C = "C"
 
 class Database:
     def __init__(self):
@@ -51,6 +57,21 @@ class Database:
             """, (str(event_id), timestamp, user_id, url))
 
             return event_id
+    
+    def get_global_mode(self) -> AccessMode:
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT access_mode FROM global_mode WHERE id = 1")
+            row = cur.fetchone()             # row 如 ('B',) 或 None
+            return AccessMode(row[0]) if row else AccessMode.A
+    # set
+    def set_global_mode(self, mode: AccessMode):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO global_mode (id, access_mode)
+                VALUES (1, %s)
+                ON CONFLICT (id) DO UPDATE SET access_mode = EXCLUDED.access_mode
+            """, (mode.value,))
+
     def get_user_email(self, username: str) -> str:
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT email FROM users WHERE name = %s", (username,))

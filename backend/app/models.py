@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, CheckConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
@@ -32,3 +32,19 @@ class SlackEvent(Base):
     url = Column(Text)
 
     user = relationship("User", back_populates="events")
+
+
+class GlobalMode(Base):
+    """
+    只有一列 (id = 1)。access_mode: 'A' | 'B' | 'C'
+    """
+    __tablename__ = "global_mode"
+
+    id = Column(Integer, primary_key=True, default=1)
+    access_mode = Column(String(1), nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("id = 1", name="ck_global_mode_single_row"),
+        CheckConstraint("access_mode IN ('A','B','C')",
+                        name="ck_global_mode_valid_values"),
+    )
