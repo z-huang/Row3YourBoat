@@ -18,7 +18,7 @@ This will launch:
 - A backend server on port 8000
 - A PostgreSQL database
 
-Once started, visit http://<server>:8000/docs to access the API. Use it to:
+Once started, visit http://\<server\>:8000/docs to access the API. Use it to:
 
 - Create a user account
 - Add websites you want to block
