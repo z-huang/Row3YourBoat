@@ -61,7 +61,6 @@ class UserUpdate(BaseModel):
     id: int
     username: Optional[str] = None
     password: Optional[str] = None
-    mode: Optional[str] = None
 
 
 class BlockedSiteCreate(BaseModel):

@@ -11,7 +11,7 @@ if [[ -n "$PROXY_USER" && -n "$PROXY_PASSWORD" ]]; then
   echo "Create user $PROXY_USER"
   curl -X POST http://localhost:8000/api/users/create \
     -H "Content-Type: application/json" \
-    -d "{\"username\": \"${PROXY_USER}\", \"password\": \"${PROXY_PASSWORD}\"}"
+    -d "{\"username\": \"${PROXY_USER}\", \"password\": \"${PROXY_PASSWORD}\", \"email\": \"test@example.com\"}"
 fi
 
 wait $SERVER_PID

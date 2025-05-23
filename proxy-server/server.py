@@ -9,7 +9,6 @@ auth_manager = AuthManager(db)
 
 addons = [
     auth_manager,
-    AccessModeEnforcer(auth, db, influx),
     RedirectManager(),
     TrafficLogger(auth_manager, influxdb),
     SlackingPolicyEnforcer(auth_manager, db, influxdb),

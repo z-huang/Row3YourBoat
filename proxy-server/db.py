@@ -7,10 +7,12 @@ from passlib.context import CryptContext
 
 from enum import Enum
 
+
 class AccessMode(str, Enum):
     A = "A"
     B = "B"
     C = "C"
+
 
 class Database:
     def __init__(self):
@@ -57,13 +59,13 @@ class Database:
             """, (str(event_id), timestamp, user_id, url))
 
             return event_id
-    
+
     def get_global_mode(self) -> AccessMode:
         with self.conn.cursor() as cur:
             cur.execute("SELECT access_mode FROM global_mode WHERE id = 1")
             row = cur.fetchone()             # row 如 ('B',) 或 None
             return AccessMode(row[0]) if row else AccessMode.A
-    # set
+
     def set_global_mode(self, mode: AccessMode):
         with self.conn.cursor() as cur:
             cur.execute("""
@@ -79,9 +81,9 @@ class Database:
             if not row or not row["email"]:
                 raise ValueError(f"找不到 {username} 的 email")
             return row["email"]
+
     def get_all_user_emails(self) -> list[str]:
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT email FROM users WHERE email IS NOT NULL")
             rows = cur.fetchall()
             return [row["email"] for row in rows]
-

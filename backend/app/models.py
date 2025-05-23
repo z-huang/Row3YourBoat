@@ -13,7 +13,6 @@ class User(Base):
     name = Column(String, unique=True, index=True)
     password = Column(String)  # hashed
     email = Column(String, unique=True) 
-    mode = Column(String)
 
     events = relationship("SlackEvent", back_populates="user")
 
