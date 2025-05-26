@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from models import *
 from database import engine, SessionLocal
 from schemas import *
-from routes import users, blocked_sites, slack_events, stats, mode
+from routes import users, blocked_sites, slack_events, stats, mode, report
 
 
 def init_db():
@@ -41,3 +41,4 @@ app.include_router(blocked_sites.router)
 app.include_router(slack_events.router)
 app.include_router(stats.router)
 app.include_router(mode.router)
+app.include_router(report.router)

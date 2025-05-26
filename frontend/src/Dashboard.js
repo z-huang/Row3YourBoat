@@ -96,9 +96,22 @@ function Home() {
         <button className="blockUrl-setting-button" onClick={() => navigate("/bspage")}>
           Block setting
         </button>
-        <button className="mail-button" onClick={() => window.location.href = "mailto:admin@example.com"}>
-          ✉️ 寄信
-        </button>
+        <button
+  className="mail-button"
+  onClick={async () => {
+    try {
+      const res = await fetch("/api/send_report", { method: "POST" });
+      if (!res.ok) throw new Error(await res.text());
+      const { detail } = await res.json();
+      alert(detail);
+    } catch (err) {
+      console.error("寄送失敗", err);
+      alert("寄送失敗，請稍後再試");
+    }
+  }}
+>
+  ✉️ 寄信
+</button>
       </div>
 
       <Tabs

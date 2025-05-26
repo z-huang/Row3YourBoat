@@ -108,6 +108,3 @@ def generate_and_send_report():
     finally:
         db.close()
 
-
-if __name__ == "__main__":
-    generate_and_send_report()
