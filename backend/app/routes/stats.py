@@ -158,7 +158,7 @@ def users_week(db: Session = Depends(get_db)):
 @router.get("/online-friends", response_model=list[schemas.UserSummary])
 def get_online_friends(db: Session = Depends(get_db)):
     now = datetime.now(TZ)
-    one_min_ago = now - timedelta(minutes=1)
+    one_min_ago = now - timedelta(minutes=30)
 
     users = (
         db.query(models.User.id, models.User.name)
