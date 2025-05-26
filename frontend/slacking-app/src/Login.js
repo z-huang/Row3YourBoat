@@ -10,42 +10,28 @@ const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    //console.log('登入觸發');
     e.preventDefault();
 
-    // 👇 模擬用的假帳密
-    const FAKE_USERNAME = 'admin';
-    const FAKE_PASSWORD = '123456';
+    try {
+      const res = await fetch('api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if(username === FAKE_USERNAME && password === FAKE_PASSWORD){
-      //console.log('登入成功！');
-      onLoginSuccess(); // 成功登入
-      navigate('/');
-    }else{
-      setError('帳號或密碼錯誤');
+      const data = await res.json();
+
+      if (res.ok) {
+        onLoginSuccess(); // 通知 App.js 切換畫面
+        navigate('/');
+      } else {
+        setError(data.message || '登入失敗');
+      }
+    } catch (err) {
+      setError('無法連接伺服器');
     }
-
-    // 後端架起來的時候跑
-    // try {
-    //   const res = await fetch('https://backend.rrryb.orb.local/api/login', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ username, password }),
-    //   });
-
-    //   const data = await res.json();
-
-    //   if (res.ok) {
-    //     onLoginSuccess(); // 通知 App.js 切換畫面
-    //     navigate('/');
-    //   } else {
-    //     setError(data.message || '登入失敗');
-    //   }
-    // } catch (err) {
-    //   setError('無法連接伺服器');
-    // }
   };
 
   return (
