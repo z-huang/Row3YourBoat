@@ -1,18 +1,18 @@
 FROM node:24-slim AS builder
 WORKDIR /app
 
-COPY slacking-app/package.json slacking-app/package-lock.json ./
+COPY package*.json .
 RUN npm install
 
-COPY slacking-app ./
+COPY . .
 RUN npm run build
 
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=builder /app/build /etc/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
