@@ -23,7 +23,7 @@ const Login = ({ onLoginSuccess }) => {
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && data['is_authenticated']) {
         onLoginSuccess(); // 通知 App.js 切換畫面
         navigate('/');
       } else {
