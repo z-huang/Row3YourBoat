@@ -72,60 +72,6 @@ function Home() {
     }
     loadData();
   }, [activeTab]);
-  // // 假資料
-  // useEffect(() => {
-  //   // 暫時模擬從後端取得資料
-  //   const mockData = {
-  //     mode: 'B',
-  //     myCount: 7,
-  //     friendsCounts: [
-  //       { name: '小明', count: 5 },
-  //       { name: '阿美', count: 3 },
-  //       { name: '我', count: 7 }
-  //     ],
-  //     onlineFriends: ['小明', '阿美', '我'],
-  //     rankingTop10: [
-  //       { name: '阿強', count: 10 },
-  //       { name: '小美', count: 9 },
-  //       { name: '我', count: 7 },
-  //       { name: '小明', count: 5 },
-  //       { name: '阿美', count: 3 },
-  //       { name: '大頭', count: 2 },
-  //       { name: '阿良', count: 2 },
-  //       { name: '小方', count: 1 },
-  //       { name: '阿豹', count: 1 },
-  //       { name: '小慧', count: 1 }
-  //     ]
-  //   };
-  
-  //   // 模擬 delay
-  //   setTimeout(() => {
-  //     setMode(mockData.mode);
-  //     setSlackData({
-  //       myCount: mockData.myCount,
-  //       friendsCounts: mockData.friendsCounts,
-  //       onlineFriends: mockData.onlineFriends,
-  //       rankingTop10: mockData.rankingTop10
-  //     });
-  //   }, 500); // 模擬 500ms delay
-  // }, []);
-
-  // 加入 fetch slack data API
-  // useEffect(() => {
-  //   fetch("/api/slack-data")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       setSlackData({
-  //         myCount: data.myCount,
-  //         onlineFriends: data.onlineFriends,
-  //         rankingTop10: data.rankingTop10,
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       console.error("取得划水資料失敗:", err);
-  //     });
-  // }, []);
-
 
   // 設定可視分頁；這邊無論模式為何都可以看到
   const visibleTabs = ["count", "friends", "ranking"];
@@ -229,48 +175,55 @@ function ModeSetting({ mode, setMode }) {
   );
 }
 
-function BlockSetting({ blockedUrls, setBlockedUrls }) {
+function BlockSetting({ blockedSites, setBlockedSites }) {
   const navigate = useNavigate();
-  const [newUrl, setNewUrl] = useState("");
+  const [newHost, setNewHost] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // 新增封鎖網址
   async function handleAdd() {
-    const trimmedUrl = newUrl.trim();
-    if (!trimmedUrl) return alert("請輸入網址");
+    const host = newHost.trim();
+    if (!host) return alert("請輸入網址");
 
     setIsUpdating(true);
     try {
-      const res = await fetch("/api/add-blocked-url", {
+      const res = await fetch("/api/blocked_sites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: trimmedUrl }),
+        body: JSON.stringify({ host }),
       });
-      if (!res.ok) throw new Error("新增失敗");
-
-      setBlockedUrls([...blockedUrls, trimmedUrl]);
-      setNewUrl("");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "新增失敗");
+      }
+      const created = await res.json(); // { id, host }
+      setBlockedSites(prev => [...prev, created]);
+      setNewHost("");
     } catch (err) {
       console.error(err);
-      alert("新增失敗，請稍後再試");
+      alert("新增失敗: " + err.message);
     } finally {
       setIsUpdating(false);
     }
   }
 
-  async function handleDelete(urlToDelete) {
+  // 刪除封鎖網址
+  async function handleDelete(id) {
+    if (!window.confirm("確定要刪除這個封鎖網址？")) return;
+
     setIsUpdating(true);
     try {
-      const res = await fetch("/api/remove-blocked-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlToDelete }),
+      const res = await fetch(`/api/blocked_sites/${id}`, {
+        method: "DELETE",
       });
-      if (!res.ok) throw new Error("刪除失敗");
-
-      setBlockedUrls(blockedUrls.filter((url) => url !== urlToDelete));
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "刪除失敗");
+      }
+      setBlockedSites(prev => prev.filter(s => s.id !== id));
     } catch (err) {
       console.error(err);
-      alert("刪除失敗，請稍後再試");
+      alert("刪除失敗: " + err.message);
     } finally {
       setIsUpdating(false);
     }
@@ -279,19 +232,17 @@ function BlockSetting({ blockedUrls, setBlockedUrls }) {
   return (
     <div className="block-setting-container">
       <h1>Block setting</h1>
-  
+
       <h3>目前被封鎖的網址</h3>
-  
-      {/* ✅ 狀態提示要獨立放，避免被左對齊拉偏 */}
-      {blockedUrls.length === 0 ? (
+      {blockedSites.length === 0 ? (
         <p className="no-blocked-url">尚無封鎖網址</p>
       ) : (
         <ul>
-          {blockedUrls.map((url, idx) => (
-            <li key={idx}>
-              {url}
+          {blockedSites.map(site => (
+            <li key={site.id}>
+              {site.host}
               <button
-                onClick={() => handleDelete(url)}
+                onClick={() => handleDelete(site.id)}
                 disabled={isUpdating}
                 className="delete-button"
               >
@@ -301,40 +252,39 @@ function BlockSetting({ blockedUrls, setBlockedUrls }) {
           ))}
         </ul>
       )}
-  
-      {/* 新增網址區塊 */}
+
       <div className="block-add-url">
         <h3 className="add-url-title">新增封鎖網址：</h3>
         <div className="input-button-row">
           <input
             type="text"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
+            value={newHost}
+            onChange={e => setNewHost(e.target.value)}
             placeholder="輸入網址，如 example.com"
             disabled={isUpdating}
           />
           <button
             onClick={handleAdd}
-            disabled={isUpdating || !newUrl.trim()}
+            disabled={isUpdating || !newHost.trim()}
           >
             新增
           </button>
         </div>
       </div>
-  
+
       <div className="back-button-wrapper">
         <button className="back-button" onClick={() => navigate("/")}>
           回前頁
         </button>
       </div>
     </div>
-  );    
+  );
 }
 
 // ⬇ 包起來一層 State 管理
 function State() {
   const [mode, setMode] = useState("A");
-  const [blockedUrls, setBlockedUrls] = useState([]);
+  const [blockedSites, setBlockedSites] = useState([]);
 
   useEffect(() => {
     async function fetchState() {
@@ -343,9 +293,9 @@ function State() {
         const dataMode = await curMode.json();
         setMode(dataMode.access_mode);
 
-        const curBlockedUrls = await fetch("/api/blocked_sites");
-        const dataBlockedUrls = await curBlockedUrls.json();
-        setBlockedUrls(dataBlockedUrls.urls);
+        const res = await fetch("/api/blocked_sites");
+        const data = await res.json(); // [{id,host},…]
+        setBlockedSites(data);
       } catch (error) {
         console.error("載入資料錯誤", error);
       }
@@ -360,7 +310,7 @@ function State() {
       <Route path="/mspage" element={<ModeSetting mode={mode} setMode={setMode} />} />
       <Route
         path="/bspage"
-        element={<BlockSetting blockedUrls={blockedUrls} setBlockedUrls={setBlockedUrls} />}
+        element={<BlockSetting blockedSites={blockedSites} setBlockedSites={setBlockedSites} />}
       />
     </Routes>
   );
