@@ -5,11 +5,22 @@ from starlette.middleware.sessions import SessionMiddleware
 from passlib.context import CryptContext
 
 from models import *
-import database
+from database import engine, SessionLocal
 from schemas import *
-from routes import users, blocked_sites, slack_events, stats
+from routes import users, blocked_sites, slack_events, stats, mode
 
-Base.metadata.create_all(bind=database.engine)
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    from models import GlobalMode
+    if not db.query(GlobalMode).filter_by(id=1).first():
+        db.add(GlobalMode(id=1, access_mode='A'))
+        db.commit()
+    db.close()
+
+
+init_db()
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware,
@@ -28,4 +39,5 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(blocked_sites.router)
 app.include_router(slack_events.router)
-app.include_router(stats.router) 
+app.include_router(stats.router)
+app.include_router(mode.router)

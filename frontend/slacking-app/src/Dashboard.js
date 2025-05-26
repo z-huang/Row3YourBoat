@@ -129,7 +129,7 @@ function ModeSetting({ mode, setMode }) {
       const res = await fetch("/api/mode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: selectedMode }),
+        body: JSON.stringify({ access_mode: selectedMode }),
       });
       if (!res.ok) throw new Error("更新模式失敗");
 
@@ -290,9 +290,9 @@ function State() {
   useEffect(() => {
     async function fetchState() {
       try {
-        const curMode = await fetch("/api/curMode");
+        const curMode = await fetch("/api/mode");
         const dataMode = await curMode.json();
-        setMode(dataMode.mode);
+        setMode(dataMode.access_mode);
 
         const curBlockedUrls = await fetch("/api/blocked_sites");
         const dataBlockedUrls = await curBlockedUrls.json();
