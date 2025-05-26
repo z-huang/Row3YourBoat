@@ -94,6 +94,9 @@ function Home() {
         <button className="blockUrl-setting-button" onClick={() => navigate("/bspage")}>
           Block setting
         </button>
+        <button className="mail-button" onClick={() => window.location.href = "mailto:admin@example.com"}>
+          ✉️ 寄信
+        </button>
       </div>
 
       <Tabs
@@ -129,7 +132,7 @@ function ModeSetting({ mode, setMode }) {
       const res = await fetch("/api/mode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_mode: selectedMode }),
+        body: JSON.stringify({ mode: selectedMode }),
       });
       if (!res.ok) throw new Error("更新模式失敗");
 
@@ -290,9 +293,9 @@ function State() {
   useEffect(() => {
     async function fetchState() {
       try {
-        const curMode = await fetch("/api/mode");
+        const curMode = await fetch("/api/curMode");
         const dataMode = await curMode.json();
-        setMode(dataMode.access_mode);
+        setMode(dataMode.mode);
 
         const curBlockedUrls = await fetch("/api/blocked_sites");
         const dataBlockedUrls = await curBlockedUrls.json();

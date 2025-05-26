@@ -12,27 +12,39 @@ const Login = ({ onLoginSuccess }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await fetch('api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+    // // 👇 模擬用的假帳密
+    // const FAKE_USERNAME = 'admin';
+    // const FAKE_PASSWORD = '123456';
 
-      const data = await res.json();
+    // if(username === FAKE_USERNAME && password === FAKE_PASSWORD){
+    //   //console.log('登入成功！');
+    //   onLoginSuccess(); // 成功登入
+    //   navigate('/');
+    // }else{
+    //   setError('帳號或密碼錯誤');
+    // }
 
-      if (res.ok && data['is_authenticated']) {
-        onLoginSuccess(); // 通知 App.js 切換畫面
-        navigate('/');
-      } else {
-        setError(data.message || '登入失敗');
+      try {
+        const res = await fetch('api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data['is_authenticated']) {
+          onLoginSuccess(); // 通知 App.js 切換畫面
+          navigate('/');
+        } else {
+          setError(data.message || '登入失敗');
+        }
+      } catch (err) {
+        setError('無法連接伺服器');
       }
-    } catch (err) {
-      setError('無法連接伺服器');
-    }
-  };
+    };
 
   return (
     <div className="app-container">

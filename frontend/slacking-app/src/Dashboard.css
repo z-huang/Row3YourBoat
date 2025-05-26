@@ -255,3 +255,24 @@
 .back-button:hover {
   background-color: #8f9a8f;
 }
+
+.mail-button {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background-color: #A9B7AA;
+  color: white;
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  width: 120px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease;
+  z-index: 999; /* 確保浮在上層 */
+}
+
+.mail-button:hover {
+  background-color: #8f9a8f;
+}

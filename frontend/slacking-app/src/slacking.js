@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './slacking.css'
 import Tabs from './components/Tabs';
 import MySlackCount from './components/MySlackCount';
 import FriendsBoat from './components/FriendsBoat';
@@ -77,8 +78,10 @@ const App = () => {
   }
 
   return (
-    <div className="app">
-      <h1>🏖 Slacking 划水 server</h1>
+    <div className="dashboard-container">
+      <h1 className="welcome-text">🏖 Slacking 划水Server</h1>
+      <div className="top-button-group">
+      </div>
 
       <Tabs
         activeTab={activeTab}
@@ -87,9 +90,9 @@ const App = () => {
       />
 
       <div className="content">
-        {activeTab === 'count' && <MySlackCount count={slackData.myCount} />}
-        {activeTab === 'friends' && <FriendsBoat friends={slackData.onlineFriends} />}
-        {activeTab === 'ranking' && <SlackRanking ranking={slackData.rankingTop10} />}
+        {activeTab === "count" && <MySlackCount count={slackData.myCount} />}
+        {activeTab === "friends" && <FriendsBoat friends={slackData.onlineFriends} />}
+        {activeTab === "ranking" && <SlackRanking ranking={slackData.rankingTop10} />}
       </div>
     </div>
   );
