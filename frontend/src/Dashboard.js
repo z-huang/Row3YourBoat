@@ -31,10 +31,10 @@ function Home() {
     if (!res.ok) throw new Error("fetch /me/today 失敗");
     return res.json(); // { user_id, count, total_minutes }
   };
-  const fetchUsersToday = async () => {
-    const res = await fetch("/api/stats/slack/users/today");
-    if (!res.ok) throw new Error("fetch /users/today 失敗");
-    return res.json(); // [ { user_id, count, total_minutes }, … ]
+  const fetchOnlineFriends = async () => {
+    const res = await fetch("/api/stats/slack/online-friends", { credentials: "include" });
+    if (!res.ok) throw new Error("fetch /online-friends 失敗");
+    return res.json(); // [ { user_id, name }, … ]
   };
   const fetchTodayTop10 = async () => {
     const res = await fetch("/api/stats/slack/users/today/top10");
@@ -43,6 +43,7 @@ function Home() {
   };
 
   useEffect(() => {
+    let timerId;
     async function loadData() {
       try {
         if (activeTab === "count") {
@@ -50,10 +51,10 @@ function Home() {
           setSlackData((prev) => ({ ...prev, myCount: me.count }));
         }
         if (activeTab === "friends") {
-          const users = await fetchUsersToday();
+          const users = await fetchOnlineFriends();
           setSlackData((prev) => ({
             ...prev,
-            onlineFriends: users.map((u) => `#${u.user_name}`),
+            onlineFriends: users.map((u) => u.name),
           }));
         }
         if (activeTab === "ranking") {
@@ -61,7 +62,7 @@ function Home() {
           setSlackData((prev) => ({
             ...prev,
             rankingTop10: top10.map((u) => ({
-              name: u.user_name, 
+              name: u.user_name,
               count: u.total_minutes,
             })),
           }));
@@ -70,7 +71,16 @@ function Home() {
         console.error("取得 Slack 資料失敗", err);
       }
     }
+
+    // 先抓一次
     loadData();
+    // 每 30 秒自動重抓
+    timerId = window.setInterval(loadData, 1 * 1000);
+
+    // cleanup
+    return () => {
+      clearInterval(timerId);
+    };
   }, [activeTab]);
 
   // 設定可視分頁；這邊無論模式為何都可以看到

@@ -71,3 +71,7 @@ class BlockedSiteCreate(BaseModel):
 class BlockedSiteUpdate(BaseModel):
     id: int
     host: str
+
+class UserSummary(BaseModel):
+    user_id: int
+    name: str
