@@ -88,7 +88,7 @@ function Home() {
 
   return (
     <div className="dashboard-container">
-      <h1 className="welcome-text">🏖 Slacking 划水Server</h1>
+      <h1 className="welcome-text">🏖 Row Row Row Your Boat</h1>
       <div className="top-button-group">
         <button className="mode-setting-button" onClick={() => navigate("/mspage")}>
           Mode setting

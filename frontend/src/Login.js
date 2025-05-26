@@ -49,7 +49,7 @@ const Login = ({ onLoginSuccess }) => {
   return (
     <div className="app-container">
       <div className="login-container">
-        <h2>🏖 Slacking 划水Server</h2>
+        <h2>🏖 Row Row Row Your Boat</h2>
         <form onSubmit={handleLogin}>
           <input
             type="text"
