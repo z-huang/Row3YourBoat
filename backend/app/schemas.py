@@ -29,6 +29,7 @@ class SlackCount(BaseModel):
 
 class SlackUserStat(BaseModel):
     user_id: int
+    user_name: str
     count: int
     total_minutes: int
 

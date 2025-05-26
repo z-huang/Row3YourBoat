@@ -15,7 +15,7 @@ import jwt
 TZ = timezone(timedelta(hours=8))
 
 router = APIRouter(
-    prefix="/stats/slack",
+    prefix="/api/stats/slack",
     tags=["Slack Stats"]
 )
 
@@ -106,19 +106,61 @@ def my_slack_today(
     row = rows[0] if rows else None
     return {
         "user_id": current_user.id,
+        "user_name": current_user.name,
         "count": row.cnt if row else 0,
         "total_minutes": row.minutes if row else 0
     }
+
+@router.get("/users/today/top10", response_model=list[schemas.SlackUserStat])
+def users_today_top10(db: Session = Depends(get_db)):
+    # 取得今日範圍
+    start, end, _ = _today_range()
+    # 拿到所有使用者今天的統計
+    rows = _user_stats(start, end, db)
+    # 依 total_minutes 排序，取前 10
+    top10 = sorted(rows, key=lambda r: r.minutes, reverse=True)[:10]
+    # 回傳格式化好的 list
+    result = []
+    for r in top10:
+        user = db.query(User).filter(User.id == r.user_id).first()
+        result.append({
+            "user_id": r.user_id,
+            "user_name": user.name if user else f"#{r.user_id}",
+            "count": r.cnt,
+            "total_minutes": r.minutes
+        })
+    return result
 
 @router.get("/users/today", response_model=list[schemas.SlackUserStat])
 def users_today(db: Session = Depends(get_db)):
     start, end, _ = _today_range()
     rows = _user_stats(start, end, db)
-    return [{"user_id": r.user_id, "count": r.cnt, "total_minutes": r.minutes} for r in rows]
 
-# ---------- 全體本週 ----------
+    result: list[dict] = []
+    for r in rows:
+        # 去 User table 找到對應的使用者
+        user = db.query(User).filter(User.id == r.user_id).first()
+        result.append({
+            "user_id":       r.user_id,
+            "user_name":     user.name if user else f"#{r.user_id}",
+            "count":         r.cnt,
+            "total_minutes": r.minutes
+        })
+    return result
+
+# ---------- 全體本週（含 user_name） ----------
 @router.get("/users/week", response_model=list[schemas.SlackUserStat])
 def users_week(db: Session = Depends(get_db)):
     start, end = _week_range()
     rows = _user_stats(start, end, db)
-    return [{"user_id": r.user_id, "count": r.cnt, "total_minutes": r.minutes} for r in rows]
+
+    result: list[dict] = []
+    for r in rows:
+        user = db.query(User).filter(User.id == r.user_id).first()
+        result.append({
+            "user_id":       r.user_id,
+            "user_name":     user.name if user else f"#{r.user_id}",
+            "count":         r.cnt,
+            "total_minutes": r.minutes
+        })
+    return result
