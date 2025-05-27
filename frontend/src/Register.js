@@ -6,12 +6,11 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmEmail, setConfirmPEmail] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -19,10 +18,29 @@ const Register = () => {
       return;
     }
 
-    // 這邊加上後端API
+    try {
+      const res = await fetch('/api/users/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+          email,
+        }),
+      });
 
-    console.log('註冊成功！', { username, password });
-    navigate('/login');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || '註冊失敗');
+      }
+
+      console.log('註冊成功！');
+      navigate('/login');
+    } catch (err) {
+      setError(err.message || '無法連線到伺服器');
+    }
   };
 
   return (
@@ -31,17 +49,17 @@ const Register = () => {
         <h2>🚣‍♀️ 註冊帳號</h2>
         <form onSubmit={handleRegister}>
           <input
-            type="email"
-            placeholder="信箱"
-            value={confirmEmail}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <input
             type="text"
             placeholder="帳號"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="電子郵件"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <input
