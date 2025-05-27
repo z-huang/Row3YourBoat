@@ -212,7 +212,7 @@ export default function Dashboard() {
           const top10 = await res.json();
           setSlackData(prev => ({
             ...prev,
-            rankingTop10: top10.map(u => ({ name: u.user_name, count: u.total_minutes }))
+            rankingTop10: top10.map(u => ({ name: u.user_name, count: u.count }))
           }));
         }
       } catch (err) {

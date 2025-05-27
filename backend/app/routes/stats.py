@@ -148,12 +148,21 @@ def users_today(db: Session = Depends(get_db)):
         })
     return result
 
-# ---------- 全體本週（含 user_name） ----------
 @router.get("/users/week", response_model=list[schemas.SlackUserStat])
 def users_week(db: Session = Depends(get_db)):
     start, end = _week_range()
     rows = _user_stats(start, end, db)
-    return [{"user_id": r.user_id, "user_name":r.name if r else f"{r.user_id}","count": r.cnt, "total_minutes": r.minutes} for r in rows]
+
+    result: list[dict] = []
+    for r in rows:
+        user = db.query(User).filter(User.id == r.user_id).first()
+        result.append({
+            "user_id":       r.user_id,
+            "user_name":     user.name if user else f"#{r.user_id}",
+            "count":         r.cnt,
+            "total_minutes": r.minutes
+        })
+    return result
 
 @router.get("/online-friends", response_model=list[schemas.UserSummary])
 def get_online_friends(db: Session = Depends(get_db)):
