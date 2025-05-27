@@ -6,6 +6,7 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmEmail, setConfirmPEmail] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -30,6 +31,13 @@ const Register = () => {
         <h2>🚣‍♀️ 註冊帳號</h2>
         <form onSubmit={handleRegister}>
           <input
+            type="email"
+            placeholder="信箱"
+            value={confirmEmail}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <input
             type="text"
             placeholder="帳號"
             value={username}
@@ -47,13 +55,6 @@ const Register = () => {
             type="password"
             placeholder="確認密碼"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <input
-            type="email"
-            placeholder="信箱"
-            value={confirmEmail}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />

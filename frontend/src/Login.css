@@ -45,6 +45,23 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  background-color: #8f9a8f;
+  transition: background-color 0.2s ease;
+}
+
+
+.link {
+  color: #5f7ab1;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #788bb1; /* 淺藍色 */
+}
+
 .error {
   color: red;
   margin-top: 1rem;
