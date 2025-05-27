@@ -16,8 +16,10 @@ function HomePage({ slackData, activeTab, setActiveTab }) {
     <div className="dashboard-container">
       <h1 className="welcome-text">🏖 Row Row Row Your Boat</h1>
       <div className="top-button-group">
-        <button onClick={() => navigate("mode_setting")}>Mode setting</button>
-        <button onClick={() => navigate("block_setting")}>Block setting</button>
+        <button className="top-button" onClick={() => navigate("mode_setting")}>Mode setting</button>
+        <button className="top-button" onClick={() => navigate("block_setting")}>Block setting</button>
+      </div>
+      <div className="floating-button-group">
         <button onClick={async () => {
     try {
       const res = await fetch("/api/send_report", { method: "POST" });
