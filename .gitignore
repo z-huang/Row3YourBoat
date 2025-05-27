@@ -26,3 +26,5 @@ Desktop.ini
 
 # React 快取
 .cache/
+
+__pycache__/
