@@ -20,10 +20,16 @@ router = APIRouter(
 )
 
 def _today_range():
-    today = datetime.now(TZ).date() 
-    start = datetime.combine(today, datetime.min.time()).astimezone(TZ)
-    end   = start + timedelta(days=1)
-    return start, end, today
+    # 用 +8 時區取得今天的起訖時間
+    local_today = datetime.now(TZ).date()
+    local_start = datetime.combine(local_today, datetime.min.time()).replace(tzinfo=TZ)
+    local_end = local_start + timedelta(days=1)
+
+    # 轉成 UTC 時間給資料庫查詢用
+    utc_start = local_start.astimezone(timezone.utc)
+    utc_end = local_end.astimezone(timezone.utc)
+
+    return utc_start, utc_end, local_today
 
 
 def _week_range():
@@ -123,12 +129,13 @@ def users_today_top10(db: Session = Depends(get_db)):
     result = []
     for r in top10:
         user = db.query(User).filter(User.id == r.user_id).first()
-        result.append({
-            "user_id": r.user_id,
-            "user_name": user.name if user else f"#{r.user_id}",
-            "count": r.cnt,
-            "total_minutes": r.minutes
-        })
+        if r.user_id:
+            result.append({
+                "user_id": r.user_id,
+                "user_name": user.name if user else f"#{r.user_id}",
+                "count": r.cnt,
+                "total_minutes": r.minutes
+            })
     return result
 
 @router.get("/users/today", response_model=list[schemas.SlackUserStat])
@@ -178,3 +185,22 @@ def get_online_friends(db: Session = Depends(get_db)):
     )
 
     return [{"user_id": u.id, "name": u.name} for u in users]
+
+# ---------- 指定 user 今日 ----------
+@router.get("/user/{user_id}/today", response_model=schemas.SlackUserStat)
+def user_today(user_id: int, db: Session = Depends(get_db)):
+    start, end, _ = _today_range()
+
+    rows = _user_stats(start, end, db, user_id=user_id)
+    row  = rows[0] if rows else None
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "user_id":       user.id,
+        "user_name":     user.name,
+        "count":         row.cnt if row else 0,
+        "total_minutes": row.minutes if row else 0
+    }

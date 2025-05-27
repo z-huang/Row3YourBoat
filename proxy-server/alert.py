@@ -1,17 +1,17 @@
 # alert.py
 from services.email_util import send_email
 from urllib.parse import urlparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import sys
 import os
 import db
-
+TZ = timezone(timedelta(hours=8))
 
 # key = user_id or username, value = last sent time
 last_sent_time = {}
 
 def notify_all_users_of_slack(username: str, url: str, db):
-    now = datetime.now()
+    now = datetime.now(TZ)
 
     # 冷卻機制
     if username in last_sent_time:

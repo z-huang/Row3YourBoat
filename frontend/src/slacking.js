@@ -27,17 +27,20 @@ const App = () => {
       try {
         // Get token from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        console.log('Token from URL:', token);
+        const parsedToken = urlParams.get('token');
+        console.log('Token from URL:', parsedToken);
         
-        if (!token) {
+        if (parsedToken) {
+          setToken(parsedToken);
+        }
+          if (!parsedToken) {
           console.log('No token found in URL');
           setIsLoading(false);
           return;
         }
 
         // Fetch user info using token
-        const apiUrl = `/api/slack-events/token/${token}`;
+        const apiUrl = `/api/slack-events/token/${parsedToken}`;
         console.log('Making request to:', apiUrl);
         
         try {
@@ -99,7 +102,7 @@ const App = () => {
 
   // 3. 在所有 fetch 都加上 Authorization header
   useEffect(() => {
-    if (!token) return;  // token 還沒拿到就別叫 API
+    if (!token || !userInfo) return;  // token 還沒拿到就別叫 API
 
     let timerId;
     async function loadData() {
@@ -107,14 +110,14 @@ const App = () => {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         if (activeTab === "count") {
-          const res = await fetch("/api/stats/slack/me/today", {
-            credentials: "include",
-            headers
-          });
-          if (!res.ok) throw new Error(res.status);
-          const me = await res.json();
-          setSlackData(prev => ({ ...prev, myCount: me.count }));
-        } else if (activeTab === "friends") {
+        const res = await fetch(
+          `/api/stats/slack/user/${userInfo.user_id}/today`,
+          { headers }
+        );
+        if (!res.ok) throw new Error(res.status);
+        const me = await res.json();
+        setSlackData(prev => ({ ...prev, myCount: me.count }));
+      }else if (activeTab === "friends") {
           const res = await fetch("/api/stats/slack/online-friends", {
             credentials: "include",
             headers
@@ -141,7 +144,7 @@ const App = () => {
     loadData();
     timerId = setInterval(loadData, 30000);
     return () => clearInterval(timerId);
-  }, [activeTab, token]);
+  }, [activeTab, token, userInfo]);
 
   // 根據後端給的 mode 決定要顯示哪些 tab
   const visibleTabs = ['count'];
