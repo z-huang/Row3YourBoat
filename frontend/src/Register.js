@@ -33,13 +33,17 @@ const Register = () => {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message || '註冊失敗');
+        setError(data.detail || '註冊失敗，請稍後再試');
+        return;
       }
 
-      console.log('註冊成功！');
+      // 註冊成功
+      const data = await res.json();
+      console.log('註冊成功', data);
       navigate('/login');
     } catch (err) {
-      setError(err.message || '無法連線到伺服器');
+      console.error('發生錯誤', err);
+      setError('伺服器錯誤，請稍後再試');
     }
   };
 
