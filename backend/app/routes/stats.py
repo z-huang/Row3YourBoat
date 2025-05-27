@@ -118,7 +118,7 @@ def users_today_top10(db: Session = Depends(get_db)):
     # 拿到所有使用者今天的統計
     rows = _user_stats(start, end, db)
     # 依 total_minutes 排序，取前 10
-    top10 = sorted(rows, key=lambda r: r.minutes, reverse=True)[:10]
+    top10 = sorted(rows, key=lambda r: r.cnt, reverse=True)[:10]
     # 回傳格式化好的 list
     result = []
     for r in top10:
