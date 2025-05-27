@@ -14,7 +14,6 @@ from uuid import UUID
 class SlackEventRead(SlackEventBase):
     id: UUID
     user_id: int
-    name: str
 
     @field_serializer("id")
     def serialize_id(self, id: UUID, _info):

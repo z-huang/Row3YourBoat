@@ -1,4 +1,5 @@
 # ----- ③ SlackEvent Router -----
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -22,7 +23,7 @@ def create_slack_event(event_in: schemas.SlackEventCreate, db: Session = Depends
 
 
 # -------- List --------
-@router.get("/", response_model=list[schemas.SlackEventRead])
+@router.get("/", response_model=List[schemas.SlackEventRead])
 def list_slack_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     events = db.query(models.SlackEvent).offset(skip).limit(limit).all()
     return events
