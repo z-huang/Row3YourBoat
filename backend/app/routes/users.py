@@ -37,9 +37,12 @@ def get_users(db: Session = Depends(get_db)):
 @router.post("/api/users/create", response_model=dict)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     print(f"[CREATE] username={user.username} password={user.password}")
-    existing = db.query(User).filter(User.name == user.username).first()
+    existing = db.query(User).filter(User.name == user.username).first() 
+    email_existing = db.query(User).filter(User.email == user.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Username already taken")
+    if email_existing:
+        raise HTTPException(status_code=400, detail="Email already taken")
     hashed = pwd_context.hash(user.password)
     db_user = User(name=user.username, password=hashed, email=user.email)
     db.add(db_user)
