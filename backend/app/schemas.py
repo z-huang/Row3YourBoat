@@ -14,6 +14,7 @@ from uuid import UUID
 class SlackEventRead(SlackEventBase):
     id: UUID
     user_id: int
+    name: str
 
     @field_serializer("id")
     def serialize_id(self, id: UUID, _info):
@@ -75,3 +76,16 @@ class BlockedSiteUpdate(BaseModel):
 class UserSummary(BaseModel):
     user_id: int
     name: str
+
+class TokenUserInfo(BaseModel):
+    id: UUID
+    user_id: int
+    name: str
+    url: str
+
+    @field_serializer("id")
+    def serialize_id(self, id: UUID, _info):
+        return str(id)
+
+    class Config:
+        from_attributes = True

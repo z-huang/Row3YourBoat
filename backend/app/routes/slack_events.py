@@ -7,7 +7,7 @@ import models, schemas
 from database import get_db
 
 router = APIRouter(
-    prefix="/slack-events",
+    prefix="/api/slack-events",
     tags=["Slack Events"]
 )
 
@@ -45,3 +45,23 @@ def delete_slack_event(event_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Event not found")
     db.delete(event)
     db.commit()
+
+
+@router.get("/token/{token}", response_model=schemas.TokenUserInfo)
+def get_user_info_by_token(token: str, db: Session = Depends(get_db)):
+    try:
+        # Convert token string to UUID
+        token_uuid = UUID(token)
+        # Query the event using the UUID and join with User table
+        event = db.query(models.SlackEvent).join(models.User).filter(models.SlackEvent.id == token_uuid).first()
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        return {
+            "id": event.id,
+            "user_id": event.user_id,
+            "name": event.user.name,
+            "url": event.url
+        }
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid token format")
