@@ -1,13 +1,13 @@
 /* Dashboard.css */
 
-/* 容器本體 */
+/* 摰孵膥�祇� */
 .dashboard-container {
   text-align: center;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 上方兩顆按鈕的區塊（置中 & 並排） */
+/* 銝𦠜䲮�拚��厰����憛𠺪�蝵桐葉 & 銝行�嚗� */
 .dashboard-container .top-button-group {
   display: flex;
   justify-content: center;
@@ -15,10 +15,9 @@
   margin-bottom: 1.5rem;
 }
 
-/* 上方按鈕樣式 */
+/* 銝𦠜䲮�厰�璅�� */
 .mode-setting-button,
-.blockUrl-setting-button,
-.logout-button {
+.blockUrl-setting-button {
   font-size: 0.85rem;
   width: 120px;
   padding: 0.4rem 0.6rem;
@@ -31,8 +30,7 @@
 }
 
 .mode-setting-button:hover,
-.blockUrl-setting-button:hover,
-.logout-button:hover {
+.blockUrl-setting-button:hover {
   background-color: #8f9a8f;
 }
 
@@ -43,35 +41,35 @@
   margin-bottom: 1rem;
 }
 
-/* 每顆 Tab 按鈕 - 預設狀態 */
+/* 瘥誯� Tab �厰� - �鞱身���� */
 .tabs button {
   font-size: 0.85rem;
   width: 250px;
   padding: 0.5rem 1rem;
-  /* 邊框 */
+  /* �𦠜� */
   border: none;
   border-bottom: 1px solid #888888;
-  background-color: white;         /* 白底 */
-  color: black;                    /* 黑字 */
-  border-radius: 5px 5px 0 0;      /* 圓角 */
+  background-color: white;         /* �賢� */
+  color: black;                    /* 暺穃� */
+  border-radius: 5px 5px 0 0;      /* �栞� */
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
 }
 
-/* 點選中的 Tab（與 hover 同樣風格） */
+/* 暺鮋�銝剔� Tab嚗�� hover �峕見憸冽聢嚗� */
 .tabs button.active {
-  background-color: #434343;          /* 深灰底 */
+  background-color: #434343;          /* 瘛梁�摨� */
   border-bottom: 1px solid #434343;
-  color: white;                    /* 白字 */
-  /*border: none;                     無邊框 */
+  color: white;                    /* �賢� */
+  /*border: none;                     �⊿�獢� */
 }
 
-/* 滑鼠 hover */
+/* 皛煾� hover */
 .tabs button:hover {
-  background-color: #434343;          /* 深灰底 */
-  color: white;                    /* 白字 */
-  /*border: none;                     無邊框 */
+  background-color: #434343;          /* 瘛梁�摨� */
+  color: white;                    /* �賢� */
+  /*border: none;                     �⊿�獢� */
 }
 
 .ranking-wrapper {
@@ -164,7 +162,7 @@
   color: #444;
 }
 
-/* 刪除按鈕樣式 */
+/* �芷膄�厰�璅�� */
 .delete-button {
   margin-left: 10px;
   padding: 0.4rem 0.8rem;
@@ -179,17 +177,14 @@
   background-color: #b94e4e;
 }
 
-/* 新增網址區塊：左對齊 */
+/* �啣�蝬脣���憛𠺪�撌血�朣� */
 .block-add-url {
   margin-top: 2rem;
-  text-align: center;
+  text-align: left;
+  padding-left: 1.5rem;
 }
-.block-add-url input,
-.block-add-url button {
-  margin: 0.5rem auto;
-  display: block;
-}
-/* 標題左對齊 */
+
+/* 璅䠷�撌血�朣� */
 .add-url-title {
   margin-bottom: 0.5rem;
 }
@@ -197,7 +192,7 @@
 .input-button-row {
   display: flex;
   gap: 1rem;
-  align-items: center; /* ✅ 確保 baseline 對齊 */
+  align-items: center; /* �� 蝣箔� baseline 撠漤� */
 }
 
 .input-button-row input {
@@ -222,15 +217,15 @@
   cursor: pointer;
   margin: 0;
 
-  /* ✅ 垂直置中內容 */
+  /* �� ��凒蝵桐葉�批捆 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  /* ✅ 關鍵：讓 button 不以文字 baseline 對齊 */
+  /* �� �𣈯枤嚗朞� button 銝滢誑��� baseline 撠漤� */
   vertical-align: middle;
 
-  /* ✅ 強制壓縮所有 padding 不讓撐高 */
+  /* �� 撘瑕�憯梶葬���� padding 銝滩��鞾� */
   padding: 0;
   box-sizing: border-box;
 }
@@ -240,7 +235,7 @@
   background-color: #8f9a8f;
 }
 
-/* 回前頁按鈕置中 */
+/* �𧼮�����閧蔭銝� */
 .back-button-wrapper {
   display: flex;
   justify-content: center;
@@ -261,54 +256,54 @@
   background-color: #8f9a8f;
 }
 
-.mail-button {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background-color: #A9B7AA;
-  color: white;
-  padding: 0.4rem 0.6rem;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.85rem;
-  width: 120px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: background-color 0.2s ease;
-  z-index: 999; /* 確保浮在上層 */
-}
-
-.mail-button:hover {
-  background-color: #8f9a8f;
-}
-
-.back-button {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-
-.primary-button {
-  width: 120px;
-  height: 42px;
-  background-color: #A9B7AA;
-  color: white;
-  font-size: 1rem;
-  line-height: 1;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+body, html {
+  height: 100%;
   margin: 0;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
   padding: 0;
-  box-sizing: border-box;
-  transition: background-color 0.2s ease;
 }
 
-.primary-button:hover {
-  background-color: #8f9a8f;
+.app-container {
+  height: 100vh; /* �鞉遛�游�贝�蝒� */
+  display: flex;
+  justify-content: center; /* 瘞游像蝵桐葉 */
+  align-items: center;     /* ��凒蝵桐葉 */
+  flex-direction: column;  /* 摮𣂼�蝝牐�銝𧢲��� */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transform: translateY(-10%);
+}
+
+.login-container {
+  width: 350px;
+  margin: 5px auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  font-family: sans-serif;
+}
+
+input {
+  box-sizing: border-box;
+  display: block;
+  width: 80%;
+  padding: 0.5rem;
+  margin: 1rem auto;
+}
+
+button {
+  width: 80%;
+  padding: 0.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #A9B7AA; /* �怨嵰餈芰� */
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+  margin-top: 1rem;
 }

@@ -10,6 +10,7 @@ const App = () => {
   const [mode, setMode] = useState(null);
   const [slackData, setSlackData] = useState({
     myCount: 0,
+    myURL: '',
     friendsCounts: [],
     onlineFriends: [],
     rankingTop10: []
@@ -92,36 +93,34 @@ const App = () => {
   // }, []);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        if (activeTab === 'count') {
-          const me = await fetchMyToday();
-          setSlackData(prev => ({ ...prev, myCount: me.count }));
+      let timerId;
+      async function loadData() {
+        try {
+          if (activeTab === "count") {
+            const res = await fetch("/api/stats/slack/me/today", { credentials: "include" });
+            const me = await res.json();
+            setSlackData(prev => ({ ...prev, myCount: me.count }));
+          } else if (activeTab === "friends") {
+            const res = await fetch("/api/stats/slack/online-friends", { credentials: "include" });
+            const users = await res.json();
+            setSlackData(prev => ({ ...prev, onlineFriends: users.map(u => u.name) }));
+          } else if (activeTab === "ranking") {
+            const res = await fetch("/api/stats/slack/users/today/top10");
+            const top10 = await res.json();
+            setSlackData(prev => ({
+              ...prev,
+              rankingTop10: top10.map(u => ({ name: u.user_name, count: u.total_minutes }))
+            }));
+          }
+        } catch (err) {
+          console.error("資料更新失敗", err);
         }
-        if (activeTab === 'friends') {
-          const users = await fetchUsersToday();
-          setSlackData(prev => ({
-            ...prev,
-            friendsCounts: users.map(u => ({ name: `#${u.user_id}`, count: u.count })),
-            onlineFriends: users.map(u => `#${u.user_id}`)
-          }));
-        }
-        if (activeTab === 'ranking') {
-          const top10 = await fetchTodayTop10();
-          setSlackData(prev => ({
-            ...prev,
-            rankingTop10: top10.map(u => ({
-              name: u.user_name, 
-              count: u.total_minutes
-            }))
-          }));
-        }
-      } catch (err) {
-        console.error('取得 Slack 資料失敗', err);
       }
-    }
-    loadData();
-  }, [activeTab]);
+  
+      loadData();
+      timerId = setInterval(loadData, 30000);
+      return () => clearInterval(timerId);
+    }, [activeTab]);
 
   // 根據 mode A 隱藏特定分頁
   const visibleTabs = ['count'];
