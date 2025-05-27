@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import './Dashboard.css';
 import Tabs from './components/Tabs';
-import MySlackCount from './components/MySlackCount';
+import MySlackCount from './components/MySlackinDB';
 import FriendsBoat from './components/FriendsBoat';
 import SlackRanking from './components/SlackRanking';
 

@@ -2,6 +2,7 @@
 
 /* 容器本體 */
 .dashboard-container {
+  justify-content: center;
   text-align: center;
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,6 +15,44 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
+
+.top-button {
+  width: 15%; /* ✅ 按鈕變短 */
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  background-color: #A9B7AA;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.top-button:hover {
+  background-color: #8f9a8f;
+}
+
+
+.floating-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.floating-buttons button {
+  min-width: 100px;
+  background-color: #a9b9ad;
+  color: white;
+  font-weight: bold;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 
 /* 上方按鈕樣式 */
 .mode-setting-button,

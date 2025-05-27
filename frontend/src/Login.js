@@ -68,6 +68,10 @@ const Login = ({ onLoginSuccess }) => {
           <button type="submit">登入</button>
           {error && <p className="error">{error}</p>}
         </form>
+        <p>
+          還沒有帳號？{' '}
+          <span className="link" onClick={() => navigate('/register')}>註冊一個</span>
+        </p>
       </div>
     </div>
   );

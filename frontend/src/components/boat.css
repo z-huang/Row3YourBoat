@@ -5,7 +5,57 @@
   background: linear-gradient(to top, #b3e0ff 50%, #ffffff 50%);
 }
 
+.boat-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: -200px;
+  animation: sail 10s linear infinite;
+}
+
+@keyframes sail {
+  0% { left: -200px; }
+  100% { left: 100%; }
+}
+
 .boat {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* .wake {
+  position: absolute;
+  left: -50px;
+  bottom: 10px;
+  width: 80px;
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.3), transparent 70%);
+  filter: blur(2px);
+  z-index: 0;
+} */
+
+.boat-img {
+  height: 200%;
+  z-index: 1;
+}
+
+.person {
+  position: absolute;
+  bottom: 30px; /* ✅ 控制人物在圖片上的位置 */
+  background: #d5c5c5;
+  border-radius: 50%;
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: black;
+  z-index: 2;
+}
+
+
+/* .boat {
   width: 200px;
   height: 100px;
   background-color: saddlebrown;
@@ -26,9 +76,4 @@
   text-align: center;
   font-size: 12px;
   color: black;
-}
-
-@keyframes sail {
-  0% { left: -200px; }
-  100% { left: 100%; }
-}
+} */

@@ -6,6 +6,8 @@ import FriendsBoat from './components/FriendsBoat';
 import SlackRanking from './components/SlackRanking';
 
 const App = () => {
+  // 1. 多一個 state 來存 token
+  const [token, setToken] = useState(null);
   const [activeTab, setActiveTab] = useState('count');
   const [mode, setMode] = useState(null);
   const [slackData, setSlackData] = useState({
@@ -16,113 +18,75 @@ const App = () => {
     rankingTop10: []
   });
 
-  const fetchMyToday = async () => {
-    const res = await fetch('/api/stats/slack/me/today', {
-      credentials: 'include'
-    });
-    if (!res.ok) throw new Error('fetch /me/today 失敗');
-    return res.json(); // { user_id, count, total_minutes }
-  };
-
-  const fetchUsersToday = async () => {
-    const res = await fetch('/api/stats/slack/users/today');
-    if (!res.ok) throw new Error('fetch /users/today 失敗');
-    return res.json(); // [ { user_id, count, total_minutes }, … ]
-  };
-
-  const fetchTodayTop10 = async () => {
-    const res = await fetch('/api/stats/slack/users/today/top10');
-    if (!res.ok) throw new Error('fetch /users/today/top10 失敗');
-    return res.json(); // 前十名
-  };
-
-  // useEffect(() => {
-  // // 暫時模擬從後端取得資料
-  // const mockData = {
-  //   mode: 'B',
-  //   myCount: 7,
-  //   friendsCounts: [
-  //     { name: '小明', count: 5 },
-  //     { name: '阿美', count: 3 },
-  //     { name: '我', count: 7 }
-  //   ],
-  //   onlineFriends: ['小明', '阿美', '我'],
-  //   rankingTop10: [
-  //     { name: '阿強', count: 10 },
-  //     { name: '小美', count: 9 },
-  //     { name: '我', count: 7 },
-  //     { name: '小明', count: 5 },
-  //     { name: '阿美', count: 3 },
-  //     { name: '大頭', count: 2 },
-  //     { name: '阿良', count: 2 },
-  //     { name: '小方', count: 1 },
-  //     { name: '阿豹', count: 1 },
-  //     { name: '小慧', count: 1 }
-  //   ]
-  // };
-
-//   // 模擬 delay
-//   setTimeout(() => {
-//     setMode(mockData.mode);
-//     setSlackData({
-//       myCount: mockData.myCount,
-//       friendsCounts: mockData.friendsCounts,
-//       onlineFriends: mockData.onlineFriends,
-//       rankingTop10: mockData.rankingTop10
-//     });
-//   }, 500); // 模擬 500ms delay
-// }, []);
-
-
-  // useEffect(() => {
-  //   // 假設 API 是 /api/slack-data
-  //   fetch('/api/slack-data')
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       setMode(data.mode);
-  //       setSlackData({
-  //         myCount: data.myCount,
-  //         friendsCounts: data.friendsCounts,
-  //         onlineFriends: data.onlineFriends,
-  //         rankingTop10: data.rankingTop10
-  //       });
-  //     })
-  //     .catch(err => {
-  //       console.error('取得划水資料失敗:', err);
-  //     });
-  // }, []);
-
+  // 2. 首次 mount 時解析 URL 拿 token
   useEffect(() => {
-      let timerId;
-      async function loadData() {
-        try {
-          if (activeTab === "count") {
-            const res = await fetch("/api/stats/slack/me/today", { credentials: "include" });
-            const me = await res.json();
-            setSlackData(prev => ({ ...prev, myCount: me.count }));
-          } else if (activeTab === "friends") {
-            const res = await fetch("/api/stats/slack/online-friends", { credentials: "include" });
-            const users = await res.json();
-            setSlackData(prev => ({ ...prev, onlineFriends: users.map(u => u.name) }));
-          } else if (activeTab === "ranking") {
-            const res = await fetch("/api/stats/slack/users/today/top10");
-            const top10 = await res.json();
-            setSlackData(prev => ({
-              ...prev,
-              rankingTop10: top10.map(u => ({ name: u.user_name, count: u.count }))
-            }));
-          }
-        } catch (err) {
-          console.error("資料更新失敗", err);
-        }
-      }
-  
-      loadData();
-      timerId = setInterval(loadData, 30000);
-      return () => clearInterval(timerId);
-    }, [activeTab]);
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('token');
+    if (t) {
+      setToken(t);
+      // （可選）如果你有 user/profile API，可以在這裡呼叫：
+      fetch('/api/user/from-token', {
+        headers: { 'Authorization': `Bearer ${t}` }
+      })
+        .then(res => res.ok ? res.json() : Promise.reject(res.status))
+        .then(profile => {
+          // 假設後端回來有 profile.mode，或其他欄位
+          setMode(profile.mode);
+          // 也可以 setSlackData({ ... , myURL: profile.url })
+        })
+        .catch(err => console.warn('取 user profile 失敗', err));
+    } else {
+      console.error('URL 沒有帶 token');
+    }
+  }, []);
 
-  // 根據 mode A 隱藏特定分頁
+  // 3. 在所有 fetch 都加上 Authorization header
+  useEffect(() => {
+    if (!token) return;  // token 還沒拿到就別叫 API
+
+    let timerId;
+    async function loadData() {
+      try {
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        if (activeTab === "count") {
+          const res = await fetch("/api/stats/slack/me/today", {
+            credentials: "include",
+            headers
+          });
+          if (!res.ok) throw new Error(res.status);
+          const me = await res.json();
+          setSlackData(prev => ({ ...prev, myCount: me.count }));
+        } else if (activeTab === "friends") {
+          const res = await fetch("/api/stats/slack/online-friends", {
+            credentials: "include",
+            headers
+          });
+          if (!res.ok) throw new Error(res.status);
+          const users = await res.json();
+          setSlackData(prev => ({ ...prev, onlineFriends: users.map(u => u.name) }));
+        } else if (activeTab === "ranking") {
+          const res = await fetch("/api/stats/slack/users/today/top10", {
+            headers
+          });
+          if (!res.ok) throw new Error(res.status);
+          const top10 = await res.json();
+          setSlackData(prev => ({
+            ...prev,
+            rankingTop10: top10.map(u => ({ name: u.user_name, count: u.count }))
+          }));
+        }
+      } catch (err) {
+        console.error("資料更新失敗", err);
+      }
+    }
+
+    loadData();
+    timerId = setInterval(loadData, 30000);
+    return () => clearInterval(timerId);
+  }, [activeTab, token]);
+
+  // 根據後端給的 mode 決定要顯示哪些 tab
   const visibleTabs = ['count'];
   if (mode !== 'A') {
     visibleTabs.push('friends', 'ranking');
@@ -131,15 +95,11 @@ const App = () => {
   return (
     <div className="dashboard-container">
       <h1 className="welcome-text">🏖 Row Row Row Your Boat</h1>
-      <div className="top-button-group">
-      </div>
-
       <Tabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         tabs={visibleTabs}
       />
-
       <div className="content">
         {activeTab === "count" && <MySlackCount count={slackData.myCount} />}
         {activeTab === "friends" && <FriendsBoat friends={slackData.onlineFriends} />}
