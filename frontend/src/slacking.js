@@ -158,30 +158,6 @@ const App = () => {
       <div className="top-button-group">
       </div>
 
-      <div className="user-info-container" style={{
-        padding: '15px',
-        margin: '10px 0',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>User Information</h3>
-        {isLoading ? (
-          <p>Loading user information...</p>
-        ) : error ? (
-          <p style={{ color: 'red' }}>Error: {error}</p>
-        ) : userInfo ? (
-          <div>
-            <p style={{ margin: '5px 0' }}><strong>ID:</strong> {userInfo.id}</p>
-            <p style={{ margin: '5px 0' }}><strong>User ID:</strong> {userInfo.user_id}</p>
-            <p style={{ margin: '5px 0' }}><strong>Name:</strong> {userInfo.name}</p>
-            <p style={{ margin: '5px 0' }}><strong>URL:</strong> {userInfo.url}</p>
-          </div>
-        ) : (
-          <p>No user information available</p>
-        )}
-      </div>
-
       <Tabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
