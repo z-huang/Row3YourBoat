@@ -92,7 +92,7 @@ def generate_and_send_report():
             elif 6 <= count <= 25:
                 intro = "你的 GPA 要被你划掉了😡\n"
             else:
-                intro = "啊啊啊啊錒，別再混了！！！🤬"
+                intro = "啊啊啊啊啊，別再混了！！！🤬"
             
             body = intro + f"你今天划水了 {count} 次。"
             if urls:
