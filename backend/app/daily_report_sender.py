@@ -93,8 +93,11 @@ def generate_and_send_report():
                 intro = "你的 GPA 要被你划掉了😡\n"
             else:
                 intro = "啊啊啊啊錒，別再混了！！！🤬"
-
-            body = intro + f"你今天划水了 {count} 次。\n你划水了這些網站：\n" + "\n".join(urls)
+            
+            body = intro + f"你今天划水了 {count} 次。"
+            if urls:
+                body += "\n你划水了這些網站：\n" + "\n".join(urls)
+            
             send_email(
                 subject=f"[每日划水報告] {today}",
                 body_text=body,
