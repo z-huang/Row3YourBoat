@@ -26,7 +26,8 @@ def send_email(subject: str,
         raise RuntimeError("請先設定 SMTP_USER / SMTP_PASSWORD 環境變數")
 
     msg             = MIMEMultipart()
-    msg["From"]     = SMTP_USER
+    msg["From"] = f"🏖 Row Row Row Your Boat Server <{SMTP_USER}>"
+
     msg["To"]       = ", ".join(to_emails)
     msg["Subject"]  = subject
     msg.attach(MIMEText(body_text, "plain"))
