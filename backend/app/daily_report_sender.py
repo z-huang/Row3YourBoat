@@ -70,10 +70,6 @@ def generate_and_send_report():
             .all()
         )
 
-        if not events:
-            print("📭 今天沒有任何事件紀錄")
-            return
-
         # 3. 過濾短時間內重複事件
         filtered_events = filter_distinct_visits(events)
 
