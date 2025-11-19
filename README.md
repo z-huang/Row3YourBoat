@@ -41,6 +41,14 @@ You can set up the proxy either at the system level or within your browser. For 
 
 ## Screenshots
 
+Today's slack count
+
 ![Today's slack count](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/today_slack_count.png)
+
+Slacking friends
+
 ![Slacking friends](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/slacking_friends.png)
+
+Slacking leaderboard
+
 ![Slacking leaderboard](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/slacking_leaderboard.png)
