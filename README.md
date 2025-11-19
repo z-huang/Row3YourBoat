@@ -2,9 +2,9 @@
 
 A proxy server that leverages the power of peer pressure to keep you from slacking off.
 
-# Getting Started
+## Getting Started
 
-## Deploy the Server
+### Deploy the Server
 
 To start all required services, run:
 
@@ -21,7 +21,7 @@ This will launch:
 
 Once started, visit <http://your-server-address/> to create an account.
 
-## Install mitmproxy Certificate Authority (CA)
+### Install mitmproxy Certificate Authority (CA)
 
 You can set up the proxy either at the system level or within your browser. For browser-level configuration, we recommend using an extension like [SwitchyOmega](https://chromewebstore.google.com/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif?hl=zh-TW).
 
@@ -30,7 +30,7 @@ You can set up the proxy either at the system level or within your browser. For 
 3. Follow the instructions to install mitmproxy's CA certificate
 4. You should now be able to browse both HTTP and HTTPS websites through the proxy. If prompted to log in while browsing, use the credentials from the account you created earlier.
 
-# Features
+## Features
 
 - Block sites
 - Modes
@@ -38,3 +38,9 @@ You can set up the proxy either at the system level or within your browser. For 
   - Scrutinized mode: send email to everyone when you slack
   - Mixed mode: block sites and send email to everyone when you slack
 - Send slacking report mail to everyone
+
+## Screenshots
+
+![Today's slack count](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/today_slack_count.png)
+![Slacking friends](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/slacking_friends.png)
+![Slacking leaderboard](https://raw.githubusercontent.com/z-huang/Row3YourBoat/refs/heads/main/screenshots/slacking_leaderboard.png)
